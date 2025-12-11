@@ -44,7 +44,7 @@ export default async function EventsPage() {
 
           {/* Centered content */}
           <div className="relative z-20 container mx-auto flex h-full items-center justify-center px-6 text-center">
-            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl">
+            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl max-w-[800px] mx-auto break-words">
               {title}
             </h1>
           </div>

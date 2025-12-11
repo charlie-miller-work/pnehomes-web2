@@ -106,9 +106,9 @@ export default function BuildingOptions() {
               </div>
 
               <div className="mb-16 text-center">
-                <h2 className="text-muted-foreground text-xl font-medium md:text-2xl lg:text-3xl">
+                <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl max-w-[800px] mx-auto break-words">
                   {data.title}
-                </h2>
+                </h1>
               </div>
             </>
           )}

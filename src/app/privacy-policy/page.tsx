@@ -28,7 +28,7 @@ export default async function PrivacyPolicyPage() {
     <div className="bg-background min-h-screen">
       {/* Hero Section with Cover Image */}
       {coverImage && (
-        <section className="relative isolate overflow-hidden h-[60vh]">
+        <section className="relative isolate h-[60vh] overflow-hidden">
           {/* Parallax background image container */}
           <div className="fixed inset-0 -z-10 bg-gray-100">
             <Image
@@ -42,12 +42,12 @@ export default async function PrivacyPolicyPage() {
                 transform: 'translateZ(0)', // Force hardware acceleration
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-white/10 to-black/10 z-10" />
+            <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/60 via-white/10 to-black/10" />
           </div>
 
           {/* Centered content */}
           <div className="relative z-20 container mx-auto flex h-full items-center justify-center px-6 text-center">
-            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl">
+            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl max-w-[800px] mx-auto break-words">
               {data.title}
             </h1>
           </div>
@@ -68,47 +68,47 @@ export default async function PrivacyPolicyPage() {
         )}
 
         <div className="px-4 py-16">
-        <div className="mx-auto max-w-7xl">
-          {/* Header Section - Only show if no cover */}
-          {!coverImage && (
-            <div className="mb-12 text-center">
-              <h1 className="text-foreground text-4xl leading-tight font-bold md:text-5xl lg:text-6xl">
-                {data.title}
-              </h1>
-              <h2 className="text-muted-foreground text-xl font-medium md:text-2xl lg:text-3xl">
-                {data.slogan}
-              </h2>
-            </div>
-          )}
+          <div className="mx-auto max-w-7xl">
+            {/* Header Section - Only show if no cover */}
+            {!coverImage && (
+              <div className="mb-12 text-center">
+                <h1 className="text-foreground text-4xl leading-tight font-bold md:text-5xl lg:text-6xl">
+                  {data.title}
+                </h1>
+                <h2 className="text-muted-foreground text-xl font-medium md:text-2xl lg:text-3xl">
+                  {data.slogan}
+                </h2>
+              </div>
+            )}
 
-          {/* Main Content */}
-          <div className="mx-auto mb-16 max-w-7xl">
-            <div className="rounded-lg bg-white p-8 shadow-lg">
-              <div className="prose prose-lg max-w-none">
-                <div 
-                  className="text-muted-foreground text-lg leading-relaxed text-justify md:text-xl"
-                  dangerouslySetInnerHTML={{ __html: data.description }}
-                />
+            {/* Main Content */}
+            <div className="mx-auto mb-16 max-w-7xl">
+              <div className="rounded-lg bg-white p-8 shadow-lg">
+                <div className="prose prose-lg max-w-none text-gray-700">
+                  <div
+                    className="text-muted-foreground text-justify text-lg leading-relaxed md:text-xl"
+                    dangerouslySetInnerHTML={{ __html: data.description }}
+                  />
+                </div>
               </div>
             </div>
+
+            {/* Contact Section - Only show if contact exists */}
+            {data.contact && (
+              <div className="mt-12 border-t border-gray-200 pt-8">
+                <div className="text-center">
+                  <Link
+                    href={`/contact?message=${encodeURIComponent(data.contact.message)}`}
+                    className="bg-pne-accent hover:bg-pne-brand focus:ring-pne-accent inline-flex items-center rounded-md border border-transparent px-6 py-3 text-base font-medium text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                  >
+                    {data.contact.title}
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Contact Section - Only show if contact exists */}
-          {data.contact && (
-            <div className="mt-12 border-t border-gray-200 pt-8">
-              <div className="text-center">
-                <Link
-                  href={`/contact?message=${encodeURIComponent(data.contact.message)}`}
-                  className="inline-flex items-center rounded-md border border-transparent bg-pne-accent px-6 py-3 text-base font-medium text-white transition-colors duration-200 hover:bg-pne-brand focus:ring-2 focus:ring-pne-accent focus:ring-offset-2 focus:outline-none"
-                >
-                  {data.contact.title}
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
-      {/* End Content Wrapper */}
+        {/* End Content Wrapper */}
       </div>
     </div>
   )

@@ -1,67 +1,70 @@
+// src/api/homeLayout.api.ts
+
 import { HomeLayoutRepository } from './folder.repository'
-import { HomeLayout, SocialMediaItem } from '../model/types'
+import type { HomeLayout, SocialMediaItem } from '../model/types'
 
 // Initialize repository instance
 const homeLayoutRepo = HomeLayoutRepository.getInstance()
 
 /**
  * Home Layout API - Main entry point for all home layout operations
+ * NOTE: Everything is async now because we fetch from the CMS.
  */
 export const homeLayoutApi = {
   /**
    * Get complete home layout configuration
    */
-  getLayout: (): HomeLayout => {
-    return homeLayoutRepo.getHomeLayout()
+  getLayout: async (opts?: { forceRefresh?: boolean }): Promise<HomeLayout> => {
+    return homeLayoutRepo.getHomeLayout(Boolean(opts?.forceRefresh))
   },
 
   /**
    * Get header configuration including logo, navigation, button, and phone
    */
-  getHeader: () => {
+  getHeader: async () => {
     return homeLayoutRepo.getHeaderConfig()
   },
 
   /**
    * Get footer configuration including navigation, phone, and social links
    */
-  getFooter: () => {
+  getFooter: async () => {
     return homeLayoutRepo.getFooterConfig()
   },
 
   /**
    * Get header navigation items
    */
-  getHeaderNav: (): string[] => {
+  getHeaderNav: async (): Promise<string[]> => {
     return homeLayoutRepo.getHeaderNavigation()
   },
 
   /**
    * Get footer navigation items
    */
-  getFooterNav: (): string[] => {
+  getFooterNav: async (): Promise<string[]> => {
     return homeLayoutRepo.getFooterNavigation()
   },
 
   /**
    * Get social media links
    */
-  getSocialLinks: (): SocialMediaItem[] => {
+  getSocialLinks: async (): Promise<SocialMediaItem[]> => {
     return homeLayoutRepo.getSocialMediaLinks()
   },
 
   /**
    * Get contact phone number
    */
-  getPhone: (): number | null => {
+  getPhone: async (): Promise<number | null> => {
     return homeLayoutRepo.getContactPhone()
   },
 
   /**
-   * Update layout configuration (for future use)
+   * Update layout configuration (local override)
    */
-  updateLayout: (updates: Partial<HomeLayout>): void => {
-    homeLayoutRepo.updateHomeLayout(updates)
+  updateLayout: async (updates: Partial<HomeLayout>): Promise<void> => {
+    await homeLayoutRepo.updateHomeLayout(updates)
   },
 }
 

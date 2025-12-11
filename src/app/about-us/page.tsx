@@ -25,7 +25,7 @@ export default async function AboutUsPage() {
     <div className="relative min-h-full">
       {/* Hero Section with Cover Image */}
       {coverImage && (
-        <section className="relative isolate overflow-hidden h-[60vh]">
+        <section className="relative isolate h-[60vh] overflow-hidden">
           {/* Parallax background image container */}
           <div className="fixed inset-0 -z-10 bg-gray-100">
             <Image
@@ -39,12 +39,12 @@ export default async function AboutUsPage() {
                 transform: 'translateZ(0)', // Force hardware acceleration
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-white/10 to-black/10 z-10" />
+            <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/60 via-white/10 to-black/10" />
           </div>
 
           {/* Centered content */}
           <div className="relative z-20 container mx-auto flex h-full items-center justify-center px-6 text-center">
-            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl">
+            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl max-w-[800px] mx-auto break-words">
               {data.title}
             </h1>
           </div>
@@ -63,45 +63,46 @@ export default async function AboutUsPage() {
       )}
 
       {/* Content wrapper with white background */}
-      <div className="relative z-10 bg-white min-h-full">
+      <div className="relative z-10 min-h-full bg-white">
         <div className="px-4 py-16 pb-16">
           <div className="mx-auto max-w-6xl">
-          {/* Header Section - Only show if no cover */}
-          {!coverImage && (
-            <div className="mb-12 text-center">
-              <p className="mb-2 text-sm font-semibold tracking-wide text-blue-600 uppercase">
-                {data.slogan}
-              </p>
-              <h1 className="mb-8 text-4xl font-bold text-gray-900 md:text-5xl">{data.title}</h1>
-            </div>
-          )}
-
-          {/* Main Content */}
-          <div className="mx-auto max-w-4xl">
-            <div className="rounded-lg bg-white p-8 shadow-lg md:p-12">
-              <div className="prose prose-lg max-w-none">
-                <div
-                  className="text-lg leading-relaxed text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: data.description || '' }}
-                />
+            {/* Header Section - Only show if no cover */}
+            {!coverImage && (
+              <div className="mb-12 text-center">
+                <p className="mb-2 text-sm font-semibold tracking-wide text-blue-600 uppercase">
+                  {data.slogan}
+                </p>
+                <h1 className="mb-8 text-4xl font-bold text-gray-900 md:text-5xl">{data.title}</h1>
               </div>
+            )}
 
-              {/* Contact Section */}
-              {data.contact && (
-                <div className="mt-12 border-t border-gray-200 pt-8">
-                  <div className="text-center">
-                    <h2 className="mb-6 text-2xl font-bold text-gray-900">{data.contact.title}</h2>
-                    <Link
-                      href={`/contact?message=${encodeURIComponent(data.contact.message)}`}
-                      className="bg-pne-accent hover:bg-pne-brand focus:ring-pne-accent inline-flex items-center rounded-md border border-transparent px-6 py-3 text-base font-medium text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                    >
-                      Get In Touch
-                    </Link>
+            {/* Main Content */}
+            <div className="mx-auto max-w-4xl">
+              <div className="rounded-lg bg-white p-8 shadow-lg md:p-12">
+                <div className="prose prose-lg max-w-none">
+                  <div className="prose prose-lg max-w-none text-gray-700">
+                    <div dangerouslySetInnerHTML={{ __html: data.description || '' }} />
                   </div>
                 </div>
-              )}
+
+                {/* Contact Section */}
+                {data.contact && (
+                  <div className="mt-12 border-t border-gray-200 pt-8">
+                    <div className="text-center">
+                      <h2 className="mb-6 text-2xl font-bold text-gray-900">
+                        {data.contact.title}
+                      </h2>
+                      <Link
+                        href={`/contact?message=${encodeURIComponent(data.contact.message)}`}
+                        className="bg-pne-accent hover:bg-pne-brand focus:ring-pne-accent inline-flex items-center rounded-md border border-transparent px-6 py-3 text-base font-medium text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                      >
+                        Get In Touch
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

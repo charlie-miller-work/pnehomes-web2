@@ -147,6 +147,8 @@ export default function HomePageClient({ content }: { content: HomeContent }) {
       )}
       {/* HERO */}
       <section className="relative z-10 h-[100svh] min-h-[560px] w-full overflow-hidden">
+        {/* Solid gray cover for md+ screens (under video/image) */}
+        <div className="absolute inset-0 hidden md:block bg-gray-300" aria-hidden />
         {/* Video for larger screens */}
         <ResponsiveMedia
           src={firstSection.video}

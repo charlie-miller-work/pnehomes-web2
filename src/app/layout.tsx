@@ -19,7 +19,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'PNE Homes - Quality Home Builders',
   description: 'Building quality homes with exceptional craftsmanship and attention to detail.',
-  icons: { icon: '/favicon.ico' },
+  // Use all available favicon assets from public/favicon
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  // Reference PWA manifest that includes Android Chrome icons (192x192, 512x512)
+  manifest: '/favicon/site.webmanifest',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

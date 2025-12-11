@@ -50,47 +50,68 @@ type RawGalleryData = {
 // Normalize the server payload into our existing GalleryData shape.
 // This keeps the rest of your app unchanged.
 async function fetchGalleryData(): Promise<GalleryData> {
-  const res = await httpGetJson<ApiEnvelope<RawGalleryData>>(CMS_GALLERY_URL)
-  if (!res?.success || !res?.data) {
-    throw new Error('Invalid gallery response')
+  console.log('[fetchGalleryData] Starting fetch from:', CMS_GALLERY_URL)
+
+  try {
+    const res = await httpGetJson<ApiEnvelope<RawGalleryData>>(CMS_GALLERY_URL)
+
+    console.log('[fetchGalleryData] Response received:', {
+      success: res?.success,
+      hasData: !!res?.data,
+      dataKeys: res?.data ? Object.keys(res.data) : [],
+    })
+
+    if (!res?.success || !res?.data) {
+      console.error('[fetchGalleryData] Invalid gallery response:', res)
+      throw new Error('Invalid gallery response: missing success or data')
+    }
+
+    const raw = res.data
+
+    const normalized: GalleryData = {
+      title: String(raw.title ?? ''),
+      cover: String(raw.cover ?? ''),
+      contact: raw.contact as ContactInfo,
+      gallery: Array.isArray(raw.gallery)
+        ? (raw.gallery as RawAlbum[]).map((album: RawAlbum) => ({
+            id: Number(album.id),
+            slug: String(album.slug ?? ''),
+            title: String(album.title ?? ''),
+            cover_img: String(album.cover_img ?? ''),
+            sub_albums: Array.isArray(album.sub_albums)
+              ? (album.sub_albums as RawSubAlbum[]).map((sub: RawSubAlbum) => ({
+                  slug: String(sub.slug ?? ''),
+                  title: String(sub.title ?? ''),
+                  cover_img: String(sub.cover_img ?? ''),
+                  gallery: Array.isArray(sub.gallery)
+                    ? (sub.gallery as RawImage[]).map((g: RawImage) => ({
+                        virtual_img: String(g.virtual_img ?? ''),
+                        real_img: String(g.real_img ?? ''),
+                      }))
+                    : [],
+                }))
+              : [],
+            gallery: Array.isArray(album.gallery)
+              ? (album.gallery as RawImage[]).map((g: RawImage) => ({
+                  virtual_img: String(g.virtual_img ?? ''),
+                  real_img: String(g.real_img ?? ''),
+                }))
+              : [],
+          }))
+        : [],
+    }
+
+    console.log('[fetchGalleryData] Successfully normalized data:', {
+      title: normalized.title,
+      albumCount: normalized.gallery.length,
+      hasCover: !!normalized.cover,
+    })
+
+    return normalized
+  } catch (error) {
+    console.error('[fetchGalleryData] Error fetching gallery data:', error)
+    throw error
   }
-
-  const raw = res.data
-
-  const normalized: GalleryData = {
-    title: String(raw.title ?? ''),
-    cover: String(raw.cover ?? ''),
-    contact: raw.contact as ContactInfo, // keep as-is if your app expects this exact shape
-    gallery: Array.isArray(raw.gallery)
-      ? (raw.gallery as RawAlbum[]).map((album: RawAlbum) => ({
-          id: Number(album.id),
-          slug: String(album.slug ?? ''),
-          title: String(album.title ?? ''),
-          cover_img: String(album.cover_img ?? ''),
-          sub_albums: Array.isArray(album.sub_albums)
-            ? (album.sub_albums as RawSubAlbum[]).map((sub: RawSubAlbum) => ({
-                slug: String(sub.slug ?? ''),
-                title: String(sub.title ?? ''),
-                cover_img: String(sub.cover_img ?? ''),
-                gallery: Array.isArray(sub.gallery)
-                  ? (sub.gallery as RawImage[]).map((g: RawImage) => ({
-                      virtual_img: String(g.virtual_img ?? ''),
-                      real_img: String(g.real_img ?? ''),
-                    }))
-                  : [],
-              }))
-            : [],
-          gallery: Array.isArray(album.gallery)
-            ? (album.gallery as RawImage[]).map((g: RawImage) => ({
-                virtual_img: String(g.virtual_img ?? ''),
-                real_img: String(g.real_img ?? ''),
-              }))
-            : [],
-        }))
-      : [],
-  }
-
-  return normalized
 }
 
 /**
@@ -98,12 +119,22 @@ async function fetchGalleryData(): Promise<GalleryData> {
  * Mirrors the file.repository API but sources from the CMS.
  */
 export class GalleryApiRepository {
-  // simple in-memory cache to avoid repeated network calls within a session
+  // in-memory cache + TTL to avoid stale data
   private cache: GalleryData | null = null
+  private cacheAtMs = 0
+  private readonly ttlMs = 60 * 1000 // ✅ 60 seconds TTL to match revalidate
 
   private async ensureData(): Promise<GalleryData> {
-    if (this.cache) return this.cache
+    const now = Date.now()
+
+    if (this.cache && now - this.cacheAtMs < this.ttlMs) {
+      console.log('[GalleryApiRepository] Returning cached data (TTL valid)')
+      return this.cache
+    }
+
+    console.log('[GalleryApiRepository] Fetching fresh data (TTL expired)')
     this.cache = await fetchGalleryData()
+    this.cacheAtMs = now
     return this.cache
   }
 
@@ -192,10 +223,12 @@ export class GalleryApiRepository {
   async getSubAlbumsCount(): Promise<number> {
     const data = await this.ensureData()
     return data.gallery.reduce((sum, a) => sum + (a.sub_albums?.length || 0), 0)
-  }
+    }
 
   // If you need to invalidate the cache (e.g., after a CMS update)
   invalidateCache(): void {
+    console.log('[GalleryApiRepository] Cache invalidated')
     this.cache = null
+    this.cacheAtMs = 0
   }
 }

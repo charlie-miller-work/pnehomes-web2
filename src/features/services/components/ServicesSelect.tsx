@@ -16,9 +16,10 @@ import type { Service } from '../model/types'
 
 interface ServicesSelectProps {
   placeholder?: string
+  active?: boolean
 }
 
-export function ServicesSelect({ placeholder = 'Services' }: ServicesSelectProps) {
+export function ServicesSelect({ placeholder = 'Services', active = false }: ServicesSelectProps) {
   const router = useRouter()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,9 +60,19 @@ export function ServicesSelect({ placeholder = 'Services' }: ServicesSelectProps
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative flex items-center gap-1 px-2 py-3 text-base font-medium text-[color:var(--pne-brand)] transition-all duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-0 after:bg-[color:var(--pne-accent)] after:transition-all after:duration-300 hover:text-[color:var(--pne-brand-600)] hover:after:w-full md:text-white md:after:hidden md:hover:-translate-y-0.5 md:hover:text-[color:var(--pne-accent)]">
+        <button className={`relative flex items-center gap-1 px-2 py-3 text-base font-medium transition-all duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:bg-[color:var(--pne-accent)] after:transition-all after:duration-300 md:after:hidden ${
+          active
+            ? 'text-[color:var(--pne-accent)] after:w-full md:-translate-y-0.5 md:text-[color:var(--pne-accent)]'
+            : 'text-[color:var(--pne-brand)] after:w-0 hover:text-[color:var(--pne-brand-600)] hover:after:w-full md:text-white md:hover:-translate-y-0.5 md:hover:text-[color:var(--pne-accent)]'
+        }`}>
           {placeholder}
-          <ChevronDown className="h-4 w-4 text-white" />
+          <ChevronDown
+            className={`h-4 w-4 transition-colors duration-300 ${
+              active
+                ? 'text-[color:var(--pne-accent)]'
+                : 'text-[color:var(--pne-brand)] md:text-white'
+            }`}
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-full max-w-xs bg-gray-200">

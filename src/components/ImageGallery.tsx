@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Gallery, Item } from 'react-photoswipe-gallery'
 import 'photoswipe/style.css'
@@ -37,9 +37,6 @@ const normalizeGoogleUrl = (u: string): string => {
   return u
 }
 
-const toNextImageUrl = (src: string, w = 3840, q = 90) =>
-  `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=${q}`
-
 const toThumb = (u: string): string => {
   const m = u.match(/https?:\/\/lh3\.googleusercontent\.com\/d\/([^/?#]+)/i)
   if (m?.[1]) return `https://lh3.googleusercontent.com/d/${m[1]}=w400`
@@ -58,14 +55,17 @@ export default function ImageGallery({
   title,
   maxVisibleImages = 3,
 }: ImageGalleryProps) {
-  const items: PsItem[] = useMemo(
+  const [items, setItems] = useState<PsItem[]>([])
+
+  // Build base items sync (used for layout immediately)
+  const baseItems: PsItem[] = useMemo(
     () =>
       images.map((src) => {
         const normalized = normalizeGoogleUrl(src)
         return {
-          original: toNextImageUrl(normalized),
+          original: normalized,      // ✅ raw image for PhotoSwipe
           thumb: toThumb(src),
-          w: 1600,
+          w: 1600,                   // temp fallback until real size loads
           h: 900,
           alt: title,
         }
@@ -73,8 +73,44 @@ export default function ImageGallery({
     [images, title]
   )
 
-  const visible = items.slice(0, maxVisibleImages)
-  const hidden = items.slice(maxVisibleImages)
+  // Load real image dimensions for PhotoSwipe to prevent stretching
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadSizes() {
+      const sized: PsItem[] = await Promise.all(
+        baseItems.map(async (it) => {
+          try {
+            const img = new window.Image()
+            img.src = it.original
+            await img.decode()
+
+            const w = img.naturalWidth || it.w
+            const h = img.naturalHeight || it.h
+
+            return { ...it, w, h }
+          } catch {
+            // If anything fails, fall back to default ratio
+            return it
+          }
+        })
+      )
+
+      if (!cancelled) setItems(sized)
+    }
+
+    loadSizes()
+
+    return () => {
+      cancelled = true
+    }
+  }, [baseItems])
+
+  // Use sized items if ready, else fallback to baseItems
+  const finalItems = items.length === baseItems.length ? items : baseItems
+
+  const visible = finalItems.slice(0, maxVisibleImages)
+  const hidden = finalItems.slice(maxVisibleImages)
   const remaining = Math.max(0, images.length - maxVisibleImages)
 
   return (
@@ -96,7 +132,7 @@ export default function ImageGallery({
       ))}
 
       <div>
-        {/* Main image */}
+        {/* Main image (UNCHANGED layout) */}
         {visible[0] && (
           <Item
             original={visible[0].original}
@@ -124,7 +160,7 @@ export default function ImageGallery({
           </Item>
         )}
 
-        {/* Thumbnails */}
+        {/* Thumbnails (UNCHANGED layout) */}
         {visible.length > 1 && (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {visible.slice(1).map((it, i, arr) => (

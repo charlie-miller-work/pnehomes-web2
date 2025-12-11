@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography'; 
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
@@ -85,7 +86,7 @@
   --sidebar-ring: oklch(0.708 0 0);
   --pne-brand: #0f2d52; /* primary brand (nav links, accents) */
   --pne-brand-600: #0c2442; /* darker hover */
-  --pne-accent: #d0a15a; /* gold accent for CTA/hover */
+  --pne-accent: #ebae1b; /* gold accent for CTA/hover */
   --pne-text: #0f172a; /* body text */
   --pne-muted: #6b7280; /* muted text */
   --pne-border: #e5e7eb; /* borders */

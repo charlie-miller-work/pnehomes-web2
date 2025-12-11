@@ -70,7 +70,7 @@ export default async function CommunityPage({ params }: CommunityPageProps) {
       <header className="pt-6 pb-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="text-left">
-            <h1 className="mb-2 text-3xl leading-tight font-semibold sm:text-4xl">{community.title}</h1>
+            <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl max-w-[800px] mx-auto break-words">{community.title}</h1>
             <p className="text-muted-foreground/80 text-lg font-semibold tracking-wider uppercase">
               {community.address || 'Featured Community'}
             </p>

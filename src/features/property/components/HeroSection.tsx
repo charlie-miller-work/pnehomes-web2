@@ -38,7 +38,7 @@ export default function HeroSection({ coverImage, pageTitle }: HeroSectionProps)
 
       <div className="relative flex h-full items-center justify-center py-16">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl drop-shadow-lg">
+          <h1 className="text-pne-brand text-4xl font-extrabold tracking-tight uppercase sm:text-5xl drop-shadow-lg max-w-[800px] mx-auto break-words">
             {pageTitle}
           </h1>
         </div>

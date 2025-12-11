@@ -26,8 +26,8 @@ function buildQuery(params: ListParams = {}): string {
   if (params.min != null) qp.set('min', String(params.min))
   if (params.max != null) qp.set('max', String(params.max))
 
-  if (params.sortBy) qp.set('sortBy', params.sortBy)
-  if (params.sortOrder) qp.set('sortOrder', params.sortOrder)
+  // if (params.sortBy) qp.set('sortBy', params.sortBy)
+  // if (params.sortOrder) qp.set('sortOrder', params.sortOrder)
 
   qp.set('page', String(params.page ?? 1))
   qp.set('limit', String(params.limit ?? 9))
