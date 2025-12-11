@@ -68,9 +68,6 @@ export default async function Page({ searchParams }: { searchParams: SP }) {
     max: toNum(searchParams.max),
     page: toNum(searchParams.page) || 1,
     limit: 9,
-    // match API defaults explicitly
-    sortBy: 'sqft' as const,
-    sortOrder: 'desc' as const,
   }
 
   // With the HTTP-backed repo:
