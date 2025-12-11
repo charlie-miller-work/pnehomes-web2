@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { Gallery, Item } from 'react-photoswipe-gallery'
 import 'photoswipe/style.css'
@@ -11,14 +11,6 @@ interface ImageGalleryProps {
   images: string[]
   title: string
   maxVisibleImages?: number
-}
-
-type PsItem = {
-  original: string
-  thumb: string
-  w: number
-  h: number
-  alt: string
 }
 
 /** --- helpers to keep refs typed (no `any`) --- */
@@ -37,17 +29,37 @@ const normalizeGoogleUrl = (u: string): string => {
   return u
 }
 
-const toThumb = (u: string): string => {
-  const m = u.match(/https?:\/\/lh3\.googleusercontent\.com\/d\/([^/?#]+)/i)
-  if (m?.[1]) return `https://lh3.googleusercontent.com/d/${m[1]}=w400`
-  return u
-}
-
-// keep this outside the component to avoid re-creating on each render
+// PhotoSwipe options (unchanged)
 const galleryOptions = {
   wheelToZoom: true,
   zoom: true,
   pswpModule: () => import('photoswipe'),
+}
+
+type LightboxImageProps = {
+  src: string
+  alt: string
+}
+
+/**
+ * Custom slide content:
+ * PhotoSwipe treats this as generic HTML and just scales the container.
+ * The <img> itself keeps its real aspect ratio via CSS (object-contain),
+ * so you don't get the "first open stretched, second open correct" issue.
+ */
+function LightboxImage({ src, alt }: LightboxImageProps) {
+  const normalized = normalizeGoogleUrl(src)
+
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-black">
+      <img
+        src={normalized}
+        alt={alt}
+        loading="lazy"
+        className="max-h-full max-w-full object-contain"
+      />
+    </div>
+  )
 }
 
 export default function ImageGallery({
@@ -55,92 +67,42 @@ export default function ImageGallery({
   title,
   maxVisibleImages = 3,
 }: ImageGalleryProps) {
-  const [items, setItems] = useState<PsItem[]>([])
+  const total = images.length
+  if (!total) return null
 
-  // Build base items sync (used for layout immediately)
-  const baseItems: PsItem[] = useMemo(
-    () =>
-      images.map((src) => {
-        const normalized = normalizeGoogleUrl(src)
-        return {
-          original: normalized,      // ✅ raw image for PhotoSwipe
-          thumb: toThumb(src),
-          w: 1600,                   // temp fallback until real size loads
-          h: 900,
-          alt: title,
-        }
-      }),
-    [images, title]
+  const visible = useMemo(
+    () => images.slice(0, maxVisibleImages),
+    [images, maxVisibleImages]
   )
 
-  // Load real image dimensions for PhotoSwipe to prevent stretching
-  useEffect(() => {
-    let cancelled = false
+  const hidden = useMemo(
+    () => images.slice(maxVisibleImages),
+    [images, maxVisibleImages]
+  )
 
-    async function loadSizes() {
-      const sized: PsItem[] = await Promise.all(
-        baseItems.map(async (it) => {
-          try {
-            const img = new window.Image()
-            img.src = it.original
-            await img.decode()
-
-            const w = img.naturalWidth || it.w
-            const h = img.naturalHeight || it.h
-
-            return { ...it, w, h }
-          } catch {
-            // If anything fails, fall back to default ratio
-            return it
-          }
-        })
-      )
-
-      if (!cancelled) setItems(sized)
-    }
-
-    loadSizes()
-
-    return () => {
-      cancelled = true
-    }
-  }, [baseItems])
-
-  // Use sized items if ready, else fallback to baseItems
-  const finalItems = items.length === baseItems.length ? items : baseItems
-
-  const visible = finalItems.slice(0, maxVisibleImages)
-  const hidden = finalItems.slice(maxVisibleImages)
-  const remaining = Math.max(0, images.length - maxVisibleImages)
+  const remaining = Math.max(0, total - maxVisibleImages)
 
   return (
     <Gallery withCaption options={galleryOptions}>
       {/* Pre-register hidden slides so lightbox can navigate to them */}
-      {hidden.map((it, i) => (
+      {hidden.map((src, i) => (
         <Item
           key={`hidden-${i}`}
-          original={it.original}
-          thumbnail={it.thumb}
-          width={it.w}
-          height={it.h}
-          caption={it.alt}
+          content={<LightboxImage src={src} alt={title} />}
         >
           {({ ref }) => (
-            <span ref={adaptRef<HTMLSpanElement>(ref as PswpRef)} style={{ display: 'none' }} />
+            <span
+              ref={adaptRef<HTMLSpanElement>(ref as PswpRef)}
+              style={{ display: 'none' }}
+            />
           )}
         </Item>
       ))}
 
       <div>
-        {/* Main image (UNCHANGED layout) */}
+        {/* Main image (layout same as before) */}
         {visible[0] && (
-          <Item
-            original={visible[0].original}
-            thumbnail={visible[0].thumb}
-            width={visible[0].w}
-            height={visible[0].h}
-            caption={visible[0].alt}
-          >
+          <Item content={<LightboxImage src={visible[0]} alt={title} />}>
             {({ ref, open }) => (
               <div
                 ref={adaptRef<HTMLDivElement>(ref as PswpRef)}
@@ -148,7 +110,7 @@ export default function ImageGallery({
                 onClick={open}
               >
                 <Image
-                  src={images[0]}
+                  src={visible[0]}
                   alt={title}
                   fill
                   className="object-cover transition-transform group-hover:scale-105"
@@ -160,17 +122,13 @@ export default function ImageGallery({
           </Item>
         )}
 
-        {/* Thumbnails (UNCHANGED layout) */}
+        {/* Thumbnails (layout same as before) */}
         {visible.length > 1 && (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {visible.slice(1).map((it, i, arr) => (
+            {visible.slice(1).map((src, i, arr) => (
               <Item
                 key={`thumb-${i}`}
-                original={it.original}
-                thumbnail={it.thumb}
-                width={it.w}
-                height={it.h}
-                caption={it.alt}
+                content={<LightboxImage src={src} alt={`${title} photo ${i + 2}`} />}
               >
                 {({ ref, open }) => (
                   <div
@@ -179,12 +137,13 @@ export default function ImageGallery({
                     onClick={open}
                   >
                     <Image
-                      src={images[i + 1]}
+                      src={src}
                       alt={`${title} photo ${i + 2}`}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"
                       sizes="(min-width:1024px) 16vw, 25vw"
                     />
+
                     {i === arr.length - 1 && remaining > 0 && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                         <Badge

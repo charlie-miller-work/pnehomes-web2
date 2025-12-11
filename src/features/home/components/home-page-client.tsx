@@ -176,9 +176,9 @@ export default function HomePageClient({ content }: { content: HomeContent }) {
                 <Image
                   src={firstSection.logo}
                   alt="PNE Homes Logo"
-                  width={360}
-                  height={140}
-                  className="mx-auto h-auto w-[240px] object-contain sm:w-[300px] md:w-[360px]"
+                  width={100}
+                  height={40}
+                  className="mx-auto h-auto w-[240px] object-contain sm:w-[100px] md:w-[100px]"
                   priority
                 />
               </div>
