@@ -100,7 +100,7 @@ export default function GalleryContent({ images, albumTitle }: GalleryContentPro
                       isTransitioning[index] ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                     }`}
                     sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    onError={(e) => {
+                    onError={() => {
                       console.error('[GalleryContent] Image failed to load:', currentSrc)
                       // Optionally set a fallback image here
                     }}

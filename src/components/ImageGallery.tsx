@@ -51,12 +51,14 @@ function LightboxImage({ src, alt }: LightboxImageProps) {
   const normalized = normalizeGoogleUrl(src)
 
   return (
-    <div className="flex h-full w-full items-center justify-center bg-black">
-      <img
+    <div className="relative h-full w-full bg-black">
+      <Image
         src={normalized}
         alt={alt}
-        loading="lazy"
-        className="max-h-full max-w-full object-contain"
+        fill
+        className="object-contain"
+        sizes="100vw"
+        priority={false}
       />
     </div>
   )
@@ -68,7 +70,6 @@ export default function ImageGallery({
   maxVisibleImages = 3,
 }: ImageGalleryProps) {
   const total = images.length
-  if (!total) return null
 
   const visible = useMemo(
     () => images.slice(0, maxVisibleImages),
@@ -81,6 +82,8 @@ export default function ImageGallery({
   )
 
   const remaining = Math.max(0, total - maxVisibleImages)
+
+  if (!total) return null
 
   return (
     <Gallery withCaption options={galleryOptions}>

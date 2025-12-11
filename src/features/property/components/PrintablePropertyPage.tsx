@@ -36,33 +36,10 @@ interface PrintablePropertyPageProps {
   property: Property
 }
 
-// Helper functions
-const num = (v?: string) => {
-  if (!v && v !== '0') return undefined
-  const n = Number(v)
-  return Number.isNaN(n) ? undefined : n
-}
 
-const money = (v?: string) => {
-  const n = num(v)
-  return typeof n === 'number' ? `$${Math.round(n).toLocaleString()}` : 'Contact for price'
-}
-
-const sqft = (v?: string) => {
-  const n = num(v)
-  return typeof n === 'number' ? `${n.toLocaleString()} sqft` : ''
-}
 
 const PrintablePropertyPage = React.forwardRef<HTMLDivElement, PrintablePropertyPageProps>(
   ({ property: p }, ref) => {
-    const [printedFromUrl, setPrintedFromUrl] = React.useState('')
-    React.useEffect(() => {
-      if (typeof window !== 'undefined') {
-        setPrintedFromUrl(window.location.href)
-      }
-    }, [])
-    const beds = p.beds ? `${p.beds} bd` : ''
-    const baths = p.baths ? `${p.baths} ba` : ''
     const gallery = Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery : []
 
     return (
